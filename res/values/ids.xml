@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Main Activity -->
+    <item name="lv_choose_bot" type="id"></item>
+
+	<!-- Bot List Item -->
+	<item name="bot_name" type="id"></item>
+	<item name="bot_language" type="id"></item>
+	
+	<!-- Chat Activity -->
+	<item name="txt_enter_message" type="id"></item>
+	<item name="btn_send" type="id"></item>
+	<item name="btn_speak" type="id"></item>
+	<item name="btn_send_progess" type="id"></item>
+</resources>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="@dimen/msg_box_padding_bottom"
+    android:paddingTop="@dimen/msg_box_padding_top" >
+
+    <View
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.20" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.80"
+        android:gravity="right"
+        android:orientation="vertical" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/hs__chat_bubble_user"
+            android:gravity="center"
+            android:orientation="vertical" >
+
+            <TextView
+                android:id="@id/txt_enter_message"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:autoLink="all"
+                android:paddingBottom="@dimen/msg_text_padding_bottom"
+                android:paddingLeft="@dimen/msg_text_padding_left"
+                android:paddingRight="@dimen/msg_text_padding_right"
+                android:paddingTop="@dimen/msg_text_padding_top"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@android:color/black" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center" >
+
+            <TextView
+                android:id="@id/bot_language"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:alpha="@dimen/msg_timestamp_alpha"
+                android:paddingRight="@dimen/msg_timestamp_padding"
+                android:paddingTop="3dp"
+                android:textSize="@dimen/textSmallSize" />
+        </LinearLayout>
+    </LinearLayout>
+
+</LinearLayout>
