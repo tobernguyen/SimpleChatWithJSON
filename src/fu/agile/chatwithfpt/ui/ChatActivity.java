@@ -43,7 +43,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 	EditText mEdInput;
 	Context mContext;
 	ProgressBar mPbBtnSend;
-	
+
 	ChatAdapter chatAdapter;
 	List<IMessage> messageList;
 	Resources resources;
@@ -121,9 +121,10 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		private void enableInput(boolean enable) {
 			btnImgSend.setEnabled(enable);
 			btnImgSpeak.setEnabled(enable);
-			if(!enable)
+			if (!enable)
 				mPbBtnSend.setVisibility(View.VISIBLE);
-			else mPbBtnSend.setVisibility(View.INVISIBLE);
+			else
+				mPbBtnSend.setVisibility(View.INVISIBLE);
 		}
 
 		@Override
@@ -190,7 +191,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 				messageList.add(new UserMessage(messageToSend, ts.getTime()));
 
 				// Fix for FPT slow in server time
-				result.setTimeStamp(ts.getTime());
+				// result.setTimeStamp(ts.getTime());
 
 				messageList.add(result);
 				if (chatAdapter == null) {
