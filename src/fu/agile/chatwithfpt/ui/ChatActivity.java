@@ -3,6 +3,10 @@ package fu.agile.chatwithfpt.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fpt.robot.Robot;
+import com.fpt.robot.RobotException;
+import com.fpt.robot.tts.RobotTextToSpeech;
+
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -48,6 +52,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 	List<IMessage> messageList;
 	Resources resources;
 
+	Robot mRobot;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,6 +63,11 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		resources = App.getContext().getResources();
 
 		initViews();
+		
+		// Looking for robot
+		mRobot = getRobot();
+		if (mRobot == null) 
+			scan();
 	}
 
 	private void initViews() {
@@ -192,7 +202,26 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 
 				// Fix for FPT slow in server time
 				// result.setTimeStamp(ts.getTime());
+				
+				mRobot = getRobot();
+				if (mRobot == null) {
+					scan();
+				} else {
+					final String statement = result.getMessage();
+					new Thread(new Runnable() {
 
+						@Override
+						public void run() {
+							try {
+								// say text with VietNamese language
+								RobotTextToSpeech.say(mRobot, statement,
+										RobotTextToSpeech.ROBOT_TTS_LANG_VI);
+							} catch (RobotException e) {
+								e.printStackTrace();
+							}
+						}
+					}).start();
+				}
 				messageList.add(result);
 				if (chatAdapter == null) {
 					chatAdapter = new ChatAdapter(messageList, mContext);

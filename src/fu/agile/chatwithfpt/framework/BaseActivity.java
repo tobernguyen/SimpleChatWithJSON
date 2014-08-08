@@ -1,9 +1,10 @@
 package fu.agile.chatwithfpt.framework;
 
 import android.app.AlertDialog;
-import android.support.v4.app.FragmentActivity;
 
-public class BaseActivity extends FragmentActivity {
+import com.fpt.robot.app.RobotActivity;
+
+public class BaseActivity extends RobotActivity {
 	protected AlertDialog dialog;
 
 	@Override
