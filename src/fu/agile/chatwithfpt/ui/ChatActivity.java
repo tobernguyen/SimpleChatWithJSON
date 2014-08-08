@@ -3,10 +3,6 @@ package fu.agile.chatwithfpt.ui;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.fpt.robot.Robot;
-import com.fpt.robot.RobotException;
-import com.fpt.robot.tts.RobotTextToSpeech;
-
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +27,7 @@ import fu.agile.chatwithfpt.chatinfo.BotMessage;
 import fu.agile.chatwithfpt.chatinfo.IMessage;
 import fu.agile.chatwithfpt.chatinfo.UserMessage;
 import fu.agile.chatwithfpt.framework.BaseActivity;
+import fu.agile.chatwithfpt.robotbehavior.RobotUtils;
 import fu.agile.chatwithfpt.services.ChatException;
 import fu.agile.chatwithfpt.ui.adapter.ChatAdapter;
 import fu.agile.chatwithfpt.util.App;
@@ -52,7 +49,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 	List<IMessage> messageList;
 	Resources resources;
 
-	Robot mRobot;
+	RobotUtils mRobotUtils;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -63,11 +60,8 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		resources = App.getContext().getResources();
 
 		initViews();
-		
-		// Looking for robot
-		mRobot = getRobot();
-		if (mRobot == null) 
-			scan();
+		mRobotUtils = new RobotUtils(this);
+		mRobotUtils.initRobot();
 	}
 
 	private void initViews() {
@@ -200,28 +194,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 				java.sql.Timestamp ts = new java.sql.Timestamp(date.getTime());
 				messageList.add(new UserMessage(messageToSend, ts.getTime()));
 
-				// Fix for FPT slow in server time
-				// result.setTimeStamp(ts.getTime());
+				// Robot do speak and do gesture
+				mRobotUtils.speakText(result.getMessage());
 				
-				mRobot = getRobot();
-				if (mRobot == null) {
-					scan();
-				} else {
-					final String statement = result.getMessage();
-					new Thread(new Runnable() {
-
-						@Override
-						public void run() {
-							try {
-								// say text with VietNamese language
-								RobotTextToSpeech.say(mRobot, statement,
-										RobotTextToSpeech.ROBOT_TTS_LANG_VI);
-							} catch (RobotException e) {
-								e.printStackTrace();
-							}
-						}
-					}).start();
-				}
 				messageList.add(result);
 				if (chatAdapter == null) {
 					chatAdapter = new ChatAdapter(messageList, mContext);
