@@ -4,15 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.database.DataSetObserver;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +21,12 @@ import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.fpt.lib.asr.Languages;
+import com.fpt.lib.asr.Result;
+import com.fpt.lib.asr.SpeakToText;
+import com.fpt.lib.asr.SpeakToTextListener;
+
 import fu.agile.chatwithfpt.R;
 import fu.agile.chatwithfpt.chatinfo.BotMessage;
 import fu.agile.chatwithfpt.chatinfo.IMessage;
@@ -31,13 +34,14 @@ import fu.agile.chatwithfpt.chatinfo.UserMessage;
 import fu.agile.chatwithfpt.framework.BaseActivity;
 import fu.agile.chatwithfpt.robotbehavior.RobotUtils;
 import fu.agile.chatwithfpt.services.ChatException;
+import fu.agile.chatwithfpt.services.ServiceHandler;
 import fu.agile.chatwithfpt.ui.adapter.ChatAdapter;
 import fu.agile.chatwithfpt.util.App;
 import fu.agile.chatwithfpt.util.Config;
 
-public class ChatActivity extends BaseActivity implements OnClickListener {
+public class ChatActivity extends BaseActivity implements OnClickListener, SpeakToTextListener {
 
-	private final static int SPEAK_REQUEST_CODE = 12342;
+//	private final static int SPEAK_REQUEST_CODE = 12342;
 
 	TextView mTvBotName;
 	ImageView btnImgSend;
@@ -46,11 +50,13 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 	EditText mEdInput;
 	Context mContext;
 	ProgressBar mPbBtnSend;
-
+	ServiceHandler mServiceHandler;
+	
 	ChatAdapter chatAdapter;
 	List<IMessage> messageList;
 	Resources resources;
 
+	SpeakToText stt;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -58,15 +64,17 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 
 		mContext = this;
 		messageList = new ArrayList<IMessage>();
-		resources = App.getContext().getResources();
-
+		resources = getResources();
+		mServiceHandler = App.getChatService();
+		stt = new SpeakToText(Languages.VIETNAMESE, this);
+		
 		initViews();
 	}
 
 	private void initViews() {
 		mTvBotName = (TextView) findViewById(R.id.bot_name);
 		mTvBotName.setText(resources.getString(R.string.txt_chatting_with_bot)
-				+ App.getChatService().getBotName());
+				+ mServiceHandler.getBotName());
 
 		btnImgSend = (ImageView) findViewById(R.id.btn_send);
 		btnImgSpeak = (ImageView) findViewById(R.id.btn_speak);
@@ -78,7 +86,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		mLvChat.setClickable(false);
 
 		mPbBtnSend = (ProgressBar) findViewById(R.id.btn_send_progess);
-		// Check for speech recognition available
+		/* Check for speech recognition available
 		PackageManager pm = getPackageManager();
 		List<ResolveInfo> activities = pm.queryIntentActivities(new Intent(
 				RecognizerIntent.ACTION_RECOGNIZE_SPEECH), 0);
@@ -90,6 +98,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 							.getString(R.string.speech_recognition_not_available),
 					Toast.LENGTH_LONG).show();
 		}
+		*/
 	}
 
 	@Override
@@ -99,7 +108,12 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 				sendMessage(mEdInput.getText().toString());
 				break;
 			case R.id.btn_speak:
-				startVoiceRecognitionActivity();
+				new Thread(new Runnable() {
+					@Override
+					public void run() {
+						stt.recognize(1000, 5000);
+					}
+				}).start();
 				break;
 			default:
 				break;
@@ -142,7 +156,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		protected BotMessage doInBackground(Void... params) {
 			BotMessage botMessage = null;
 			try {
-				botMessage = App.getChatService().getBotMessage(messageToSend);
+				botMessage = mServiceHandler.getBotMessage(messageToSend);
 			} catch (ChatException e) {
 				exeption = e;
 			}
@@ -219,6 +233,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 
 	}
 
+/*
+ * Google Voice Recognition
+ * 
 	private void startVoiceRecognitionActivity() {
 		String languagePref = "vi";
 		Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
@@ -244,6 +261,7 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
+*/
 	
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
@@ -274,5 +292,85 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 	public void onRobotDisconnected(String addr, int port) {
 		super.onRobotDisconnected(addr, port);
 		Toast.makeText(mContext, "Robot at " + addr + ":" + port + "  disconnected", Toast.LENGTH_SHORT).show();
+	}
+
+	private ProgressDialog progressDialog = null;
+	
+	protected void showProgress(final String message) {
+		// Log.d(TAG, "showProgress('" +message+ "')");
+		runOnUiThread(new Runnable() {
+			public void run() {
+				if (progressDialog == null) {
+					progressDialog = new ProgressDialog(ChatActivity.this);
+				}
+				// no title
+				if (message != null) {
+					progressDialog.setMessage(message);
+				}
+				progressDialog.setIndeterminate(true);
+				progressDialog.setCancelable(false);
+				progressDialog.show();
+			}
+		});
+	}
+
+	protected void cancelProgress() {
+		// Log.d(TAG, "cancelProgress()");
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				if (progressDialog != null) {
+					// progressDialog.cancel();
+					progressDialog.dismiss();
+				}
+			}
+		});
+	}
+
+	
+	@Override
+	public void onWaiting() {
+		showProgress("Xin hãy nói...");
+	}
+
+	@Override
+	public void onRecording() {
+		showProgress("Đang thu tiếng...");
+	}
+
+	@Override
+	public void onError(Exception ex) {
+		Toast.makeText(mContext, "Không nhận diện được lời nói. Xin hãy thử lại.", Toast.LENGTH_SHORT).show();
+		cancelProgress();
+	}
+
+	@Override
+	public void onTimeout() {
+		cancelProgress();
+	}
+
+	private void setText(final String text) {
+		runOnUiThread(new Runnable() {
+			@Override
+			public void run() {
+				mEdInput.setText(text);
+			}
+		});
+	}
+
+	@Override
+	public void onProcessing() {
+		showProgress("Đang xử lý...");
+	}
+
+	@Override
+	public void onResult(Result result) {
+		setText(result.result[0].alternative[0].transcript);
+		cancelProgress();
+	}
+
+	@Override
+	public void onStopped() {
+		cancelProgress();
 	}
 }

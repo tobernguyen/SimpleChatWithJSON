@@ -2,6 +2,7 @@ package fu.agile.chatwithfpt.ui;
 
 import java.util.List;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -15,22 +16,24 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ListView;
 import fu.agile.chatwithfpt.R;
 import fu.agile.chatwithfpt.chatinfo.BotInfo;
-import fu.agile.chatwithfpt.framework.BaseActivity;
 import fu.agile.chatwithfpt.services.ChatException;
+import fu.agile.chatwithfpt.services.ServiceHandler;
 import fu.agile.chatwithfpt.ui.adapter.ListBotAdapter;
 import fu.agile.chatwithfpt.util.App;
 
-public class MainActivity extends BaseActivity {
+public class MainActivity extends Activity {
 
 	ListView mLvChooseBot;
 	List<BotInfo> botList;
 	Context mContext;
-
+	ServiceHandler mServiceHandler;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
+		mServiceHandler = App.getChatService();
 		initViews();
 		new GetBotList().execute();
 	}
@@ -45,8 +48,8 @@ public class MainActivity extends BaseActivity {
 					int position, long arg) {
 				BotInfo item = (BotInfo) mLvChooseBot
 						.getItemAtPosition(position);
-				App.getChatService().setBotId(item.getBotId());
-				App.getChatService().setBotName(item.getBotName());
+				mServiceHandler.setBotId(item.getBotId());
+				mServiceHandler.setBotName(item.getBotName());
 				Intent goToChatActivity = new Intent(MainActivity.this,
 						ChatActivity.class);
 				startActivity(goToChatActivity);
@@ -57,12 +60,12 @@ public class MainActivity extends BaseActivity {
 	private class GetBotList extends AsyncTask<Void, Void, Void> {
 		private ChatException exeption = null;
 		private Resources resource;
-
+		private AlertDialog dialog;
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
 
-			resource = App.getContext().getResources();
+			resource = mContext.getResources();
 			// Showing progress dialog
 			dialog = new ProgressDialog(mContext);
 			dialog.setMessage(resource.getString(R.string.please_wait));
@@ -73,7 +76,7 @@ public class MainActivity extends BaseActivity {
 		@Override
 		protected Void doInBackground(Void... params) {
 			try {
-				botList = App.getChatService().getBotList();
+				botList = mServiceHandler.getBotList();
 			} catch (ChatException e) {
 				exeption = e;
 			}

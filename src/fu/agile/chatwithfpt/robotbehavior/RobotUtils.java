@@ -7,6 +7,7 @@ import com.fpt.robot.RobotException;
 import com.fpt.robot.motion.RobotGesture;
 import com.fpt.robot.tts.RobotTextToSpeech;
 
+@SuppressWarnings("unused")
 public class RobotUtils {
 	public static enum ROBOT_ACTION_STATUS {
 		SUCCESS, ERROR, ROBOT_NOT_FOUND
@@ -27,11 +28,10 @@ public class RobotUtils {
 
 					try {
 						speakThread.join();
+						gestureThread.stopDoGesture();
 					} catch (InterruptedException e) {
 						// Do nothing
 					}
-					gestureThread.stopDoGesture();
-
 				}
 			}).start();
 	}
