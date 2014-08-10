@@ -14,6 +14,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -49,7 +51,6 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 	List<IMessage> messageList;
 	Resources resources;
 
-	RobotUtils mRobotUtils;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -60,8 +61,6 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		resources = App.getContext().getResources();
 
 		initViews();
-		mRobotUtils = new RobotUtils(this);
-		mRobotUtils.initRobot();
 	}
 
 	private void initViews() {
@@ -195,7 +194,9 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 				messageList.add(new UserMessage(messageToSend, ts.getTime()));
 
 				// Robot do speak and do gesture
-				mRobotUtils.speakText(result.getMessage());
+				if(getRobot() !=null)
+					RobotUtils.speakWithGesture(getRobot(), result.getMessage());
+				else Toast.makeText(mContext, "Robot not connected. Please rescan in Menu", Toast.LENGTH_SHORT).show();
 				
 				messageList.add(result);
 				if (chatAdapter == null) {
@@ -242,5 +243,24 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 			mEdInput.setText(matches.get(0));
 		}
 		super.onActivityResult(requestCode, resultCode, data);
+	}
+	
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		// Inflate the menu; this adds items to the action bar if it is present.
+		getMenuInflater().inflate(R.menu.main, menu);
+		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_scanrobot:
+			scan();
+			break;
+		default:
+			break;
+		}
+		return true;
 	}
 }

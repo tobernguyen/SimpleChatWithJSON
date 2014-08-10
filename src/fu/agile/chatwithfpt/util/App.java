@@ -1,10 +1,12 @@
 package fu.agile.chatwithfpt.util;
 
-import android.app.Application;
 import android.content.Context;
+
+import com.fpt.robot.app.RobotApplication;
+
 import fu.agile.chatwithfpt.services.ServiceHandler;
 
-public class App extends Application {
+public class App extends RobotApplication {
 	static ServiceHandler serviceHandler;
 	static Context currentApp;
 

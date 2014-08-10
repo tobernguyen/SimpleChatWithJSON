@@ -1,0 +1,17 @@
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/projects/robotfw/!svn/ver/1913/trunk/android/Releases/2.0-beta2/libs/robotconnect/x86
+END
+libpocketsphinx_jni.so
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/projects/robotfw/!svn/ver/1913/trunk/android/Releases/2.0-beta2/libs/robotconnect/x86/libpocketsphinx_jni.so
+END
+librobotconnect_jni.so
+K 25
+svn:wc:ra_dav:version-url
+V 113
+/svn/projects/robotfw/!svn/ver/1913/trunk/android/Releases/2.0-beta2/libs/robotconnect/x86/librobotconnect_jni.so
+END
