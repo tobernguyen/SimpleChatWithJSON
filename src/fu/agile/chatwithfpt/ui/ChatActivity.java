@@ -263,4 +263,16 @@ public class ChatActivity extends BaseActivity implements OnClickListener {
 		}
 		return true;
 	}
+	
+	@Override
+	public void onRobotConnected(String addr, int port) {
+		super.onRobotConnected(addr, port);
+		Toast.makeText(mContext, "Robot at " + addr + ":" + port + " connected", Toast.LENGTH_SHORT).show();
+	}
+	
+	@Override
+	public void onRobotDisconnected(String addr, int port) {
+		super.onRobotDisconnected(addr, port);
+		Toast.makeText(mContext, "Robot at " + addr + ":" + port + "  disconnected", Toast.LENGTH_SHORT).show();
+	}
 }
