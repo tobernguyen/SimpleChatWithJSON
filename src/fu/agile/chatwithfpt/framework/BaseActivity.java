@@ -9,7 +9,12 @@ public class BaseActivity extends RobotActivity {
 
 	@Override
 	public void onDestroy() {
-		super.onDestroy();
+		try{
+			super.onDestroy();
+		}catch (Exception e){
+			
+		}
+		
 		if (dialog != null && dialog.isShowing()) {
 			dialog.dismiss();
 		}
